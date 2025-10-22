@@ -9,15 +9,11 @@ from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import seaborn as sns
 import random
 
-# -----------------------------
 # 1. Device Configuration
-# -----------------------------
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f'Using device: {device}')
 
-# -----------------------------
 # 2. Data Preprocessing
-# -----------------------------
 transform_train = transforms.Compose([
     transforms.RandomHorizontalFlip(),
     transforms.RandomCrop(32, padding=4),
@@ -50,9 +46,7 @@ test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, s
 classes = ('airplane', 'automobile', 'bird', 'cat', 'deer',
            'dog', 'frog', 'horse', 'ship', 'truck')
 
-# -----------------------------
 # 3. Define CNN Model
-# -----------------------------
 class CNN(nn.Module):
     def __init__(self):
         super(CNN, self).__init__()
@@ -83,15 +77,11 @@ class CNN(nn.Module):
 model = CNN().to(device)
 print(model)
 
-# -----------------------------
 # 4. Loss & Optimizer
-# -----------------------------
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-# -----------------------------
 # 5. Train & Validate
-# -----------------------------
 num_epochs = 10
 train_losses, val_losses = [], []
 train_acc, val_acc = [], []
@@ -117,6 +107,7 @@ for epoch in range(num_epochs):
     epoch_acc = 100 * correct / total
     train_losses.append(epoch_loss)
     train_acc.append(epoch_acc)
+    
 
     # Validation
     model.eval()
@@ -139,10 +130,10 @@ for epoch in range(num_epochs):
           f'| Val Loss: {val_loss/len(val_loader):.4f}, Val Acc: {val_acc[-1]:.2f}%')
 
 print("Training Complete!")
+torch.save(model.state_dict(), "cnn_cifar10.pth")
+print("Model saved successfully!")
 
-# -----------------------------
 # 6. Evaluate on Test Set
-# -----------------------------
 model.eval()
 correct, total = 0, 0
 all_preds, all_labels = [], []
@@ -160,9 +151,7 @@ with torch.no_grad():
 test_accuracy = 100 * correct / total
 print(f'Test Accuracy: {test_accuracy:.2f}%')
 
-# -----------------------------
 # 7. Confusion Matrix
-# -----------------------------
 cm = confusion_matrix(all_labels, all_preds)
 disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=classes)
 fig, ax = plt.subplots(figsize=(8, 8))
@@ -170,9 +159,7 @@ disp.plot(ax=ax, cmap='Blues', colorbar=False)
 plt.title("Confusion Matrix on Test Data")
 plt.show()
 
-# -----------------------------
 # 8. Per-Class Accuracy
-# -----------------------------
 class_correct = [0] * 10
 class_total = [0] * 10
 
@@ -195,9 +182,7 @@ plt.ylabel("Accuracy (%)")
 plt.xticks(rotation=45)
 plt.show()
 
-# -----------------------------
 # 9. Loss & Accuracy Curves
-# -----------------------------
 plt.figure(figsize=(10,4))
 plt.subplot(1,2,1)
 plt.plot(train_losses, label='Train Loss')
